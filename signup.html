@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup - Fake Roblox 2009</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 300px; margin: 50px auto; }
+        input { width: 100%; padding: 10px; margin: 10px 0; }
+        button { width: 100%; padding: 10px; background-color: #34a853; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #2e8b47; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Create Account</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="signUp()">Sign Up</button>
+        <p>Already have an account? <a href="login.html">Login here</a></p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        async function signUp() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) return alert("Please fill in all fields.");
+
+            const userRef = db.collection("users").doc(username);
+            const doc = await userRef.get();
+            if (doc.exists) return alert("Username already taken!");
+
+            try {
+                const email = `${username}@example.com`;
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await userRef.set({ uid: userCredential.user.uid, username: username });
+
+                alert("Account created successfully! You can now log in.");
+                window.location.href = "login.html";
+            } catch (error) {
+                alert("Error: " + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
